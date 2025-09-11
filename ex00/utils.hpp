@@ -1,25 +1,20 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   BitcoinExchange.hpp                                :+:      :+:    :+:   */
+/*   utils.hpp                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: akyoshid <akyoshid@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/09/09 05:41:11 by akyoshid          #+#    #+#             */
-/*   Updated: 2025/09/11 19:21:19 by akyoshid         ###   ########.fr       */
+/*   Created: 2025/09/11 16:41:11 by akyoshid          #+#    #+#             */
+/*   Updated: 2025/09/11 16:46:11 by akyoshid         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef EX00_BITCOINEXCHANGE_HPP_
-# define EX00_BITCOINEXCHANGE_HPP_
+#ifndef EX00_UTILS_HPP_
+# define EX00_UTILS_HPP_
 
-class BitcoinExchange {
- public:
-    BitcoinExchange();
-    BitcoinExchange(const BitcoinExchange& src);
-    BitcoinExchange& operator=(const BitcoinExchange& src);
-    ~BitcoinExchange();
- private:
-};
+# include <string>
+
+std::string itostr(int num);
 
 #endif

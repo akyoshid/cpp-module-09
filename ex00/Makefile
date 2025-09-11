@@ -3,11 +3,15 @@ NAME =		btc
 OBJ_DIR =	obj/
 
 INC = \
-			BitcoinExchange.hpp
+			BitcoinExchange.hpp \
+			ExchangeRate.hpp \
+			utils.hpp
 
 SRC = \
 			BitcoinExchange.cpp \
-			main.cpp
+			ExchangeRate.cpp \
+			main.cpp \
+			utils.cpp
 
 OBJ =		$(patsubst %.cpp,$(OBJ_DIR)%.o,$(SRC))
 

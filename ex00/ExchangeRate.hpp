@@ -6,7 +6,7 @@
 /*   By: akyoshid <akyoshid@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/10 14:54:52 by akyoshid          #+#    #+#             */
-/*   Updated: 2025/09/11 18:22:58 by akyoshid         ###   ########.fr       */
+/*   Updated: 2025/09/11 19:29:19 by akyoshid         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,11 +18,11 @@
 
 class ExchangeRate {
  public:
-    ExchangeRate(const std::string& file);
+    ExchangeRate(const std::string& filename);
     ~ExchangeRate();
  private:
     std::map<int, double> database_;
-    std::string fileName_;
+    std::string filename_;
     int lineCount_;
     void checkFormat(const std::string& line) const;
     int extractDate(const std::string& line) const;

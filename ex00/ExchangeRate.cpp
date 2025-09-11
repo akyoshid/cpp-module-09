@@ -6,7 +6,7 @@
 /*   By: akyoshid <akyoshid@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/10 14:54:44 by akyoshid          #+#    #+#             */
-/*   Updated: 2025/09/11 19:07:18 by akyoshid         ###   ########.fr       */
+/*   Updated: 2025/09/11 19:29:49 by akyoshid         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,9 +20,9 @@
 #include "ExchangeRate.hpp"
 #include "utils.hpp"
 
-ExchangeRate::ExchangeRate(const std::string& file)
-    : fileName_(file), lineCount_(0) {
-    std::ifstream ifs(fileName_.c_str());
+ExchangeRate::ExchangeRate(const std::string& filename)
+    : filename_(filename), lineCount_(0) {
+    std::ifstream ifs(filename_.c_str());
     if (!ifs.is_open())
         throw std::runtime_error(createErrorMessage(0, 0, "could not open"));
     std::string line = "";
@@ -155,11 +155,11 @@ std::string ExchangeRate::createErrorMessage(
     int line, int column, const std::string& msg) const {
     if (column <= 0) {
         if (line <= 0) {
-            return "Error: " + fileName_ + ": " + msg;
+            return "Error: " + filename_ + ": " + msg;
         } else {
-            return "Error: " + fileName_ + ":" + itostr(line) + ": " + msg;
+            return "Error: " + filename_ + ":" + itostr(line) + ": " + msg;
         }
     } else {
-        return "Error: " + fileName_ + ":" + itostr(line) + ":" + itostr(column) + ": " + msg;
+        return "Error: " + filename_ + ":" + itostr(line) + ":" + itostr(column) + ": " + msg;
     }
 }

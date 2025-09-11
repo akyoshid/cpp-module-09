@@ -6,7 +6,7 @@
 /*   By: akyoshid <akyoshid@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/10 14:54:44 by akyoshid          #+#    #+#             */
-/*   Updated: 2025/09/11 19:29:49 by akyoshid         ###   ########.fr       */
+/*   Updated: 2025/09/11 19:51:02 by akyoshid         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -70,7 +70,9 @@ void ExchangeRate::checkFormat(const std::string& line) const {
                             lineCount_, i + 1, "invalid format"));
             }
         } else {
-            if (line[i] == '.') {
+            if (i == 11 && (line[i] == '+' || line[i] == '-')) {
+                continue;
+            } else if (line[i] == '.') {
                 if (hasDot == true) {
                     throw std::runtime_error(createErrorMessage(
                                 lineCount_, i + 1, "invalid price"));
@@ -143,6 +145,10 @@ double ExchangeRate::extractRate(const std::string& line) const {
     if (*end != '\0') {
         throw std::runtime_error(createErrorMessage(
                     lineCount_, end - line.c_str() + 1, "invalid price"));
+    }
+    if (ret < 0) {
+        throw std::runtime_error(createErrorMessage(
+                    lineCount_, 12, "negative price"));
     }
     if (errno == ERANGE) {
         throw std::runtime_error(createErrorMessage(

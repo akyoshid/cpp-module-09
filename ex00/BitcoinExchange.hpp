@@ -6,20 +6,26 @@
 /*   By: akyoshid <akyoshid@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/09 05:41:11 by akyoshid          #+#    #+#             */
-/*   Updated: 2025/09/11 19:21:19 by akyoshid         ###   ########.fr       */
+/*   Updated: 2025/09/12 16:21:16 by akyoshid         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef EX00_BITCOINEXCHANGE_HPP_
 # define EX00_BITCOINEXCHANGE_HPP_
 
-class BitcoinExchange {
+# include <string>
+# include "ADatabase.hpp"
+# include "ExchangeRate.hpp"
+
+class BitcoinExchange : public ADatabase {
  public:
-    BitcoinExchange();
-    BitcoinExchange(const BitcoinExchange& src);
-    BitcoinExchange& operator=(const BitcoinExchange& src);
+    BitcoinExchange(const std::string& filename, const ExchangeRate& rate);
     ~BitcoinExchange();
  private:
+    static void exchange(int date, double value, const ExchangeRate& rate);
+    BitcoinExchange(); // = delete
+    BitcoinExchange(const BitcoinExchange& src); // = delete
+    BitcoinExchange& operator=(const BitcoinExchange& src); // = delete
 };
 
 #endif

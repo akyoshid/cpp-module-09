@@ -6,7 +6,7 @@
 /*   By: akyoshid <akyoshid@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/09 05:41:02 by akyoshid          #+#    #+#             */
-/*   Updated: 2025/09/11 16:25:39 by akyoshid         ###   ########.fr       */
+/*   Updated: 2025/09/12 16:22:42 by akyoshid         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,9 +21,8 @@ int main(int argc, char *argv[]) {
         return 1;
     }
     try {
-        ExchangeRate exchRate("data.csv");
-        (void)argv;
-
+        ExchangeRate d1("data.csv");
+        BitcoinExchange d2(argv[1], d1);
     } catch (std::exception& e) {
         std::cerr << e.what() << std::endl;
         return 1;

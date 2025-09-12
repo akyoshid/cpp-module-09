@@ -3,11 +3,13 @@ NAME =		btc
 OBJ_DIR =	obj/
 
 INC = \
+			ADatabase.hpp \
 			BitcoinExchange.hpp \
 			ExchangeRate.hpp \
 			utils.hpp
 
 SRC = \
+			ADatabase.cpp \
 			BitcoinExchange.cpp \
 			ExchangeRate.cpp \
 			main.cpp \
@@ -40,6 +42,6 @@ re: fclean all
 val:
 	valgrind --leak-check=full --leak-check=full \
 	--show-leak-kinds=definite,indirect,possible \
-	--track-fds=yes ./$(NAME)
+	--track-fds=yes ./$(NAME) input.txt
 
 .PHONY: all clean fclean re val

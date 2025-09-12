@@ -6,7 +6,7 @@
 /*   By: akyoshid <akyoshid@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/10 14:54:44 by akyoshid          #+#    #+#             */
-/*   Updated: 2025/09/11 19:51:02 by akyoshid         ###   ########.fr       */
+/*   Updated: 2025/09/12 12:31:08 by akyoshid         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,8 +17,11 @@
 #include <stdexcept>
 #include <cstdlib>
 #include <cerrno>
+#include <limits>
 #include "ExchangeRate.hpp"
 #include "utils.hpp"
+
+const size_t ExchangeRate::dateLen_ = 10;
 
 ExchangeRate::ExchangeRate(const std::string& filename)
     : filename_(filename), lineCount_(0) {
@@ -35,7 +38,8 @@ ExchangeRate::ExchangeRate(const std::string& filename)
         ++lineCount_;
         checkFormat(line);
         database_.insert(
-            std::make_pair(extractDate(line), extractRate(line)));
+            std::make_pair(
+                extractDate(line), extractValue(line.substr(getValueIndex()))));
     }
     if (ifs.bad())
         throw std::runtime_error(createErrorMessage(0, 0, "could not read"));
@@ -44,51 +48,84 @@ ExchangeRate::ExchangeRate(const std::string& filename)
 ExchangeRate::~ExchangeRate() {
 }
 
+std::string ExchangeRate::getSeparator() const {
+    return ",";
+}
+
+size_t ExchangeRate::getSeparatorLen() const {
+    return getSeparator().length();
+}
+
+size_t ExchangeRate::getValueIndex() const {
+    return dateLen_ + getSeparatorLen();
+}
+
+double ExchangeRate::getValueMax() const {
+    return std::numeric_limits<double>::infinity();
+}
+
 void ExchangeRate::checkFormat(const std::string& line) const {
-    if (line.length() < 12) {
+    checkLineLen(line);
+    checkDateFormat(line);
+    checkSeparatorFormat(line.substr(dateLen_, getSeparatorLen()));
+    checkValueFormat(line.substr(getValueIndex()));
+}
+
+void ExchangeRate::checkLineLen(const std::string& line) const {
+    if (line.length() < getValueIndex() + 1) {
         throw std::runtime_error(createErrorMessage(
                     lineCount_, line.length(), "invalid line length"));
     }
-    bool hasDot = false;
-    bool hasDigit = false;
-    for (size_t i = 0; i < line.length(); ++i) {
-        if (i < 10) {
-            if (i == 4 || i == 7) {
-                if (line[i] != '-') {
-                    throw std::runtime_error(createErrorMessage(
-                                lineCount_, i + 1, "invalid date format"));
-                }
-            } else {
-                if (std::isdigit(static_cast<unsigned char>(line[i])) == false) {
-                    throw std::runtime_error(createErrorMessage(
-                                lineCount_, i + 1, "invalid date format"));
-                }
-            }
-        } else if (i == 10) {
-            if (line[i] != ',') {
+}
+
+void ExchangeRate::checkDateFormat(const std::string& line) const {
+    for (size_t i = 0; i < dateLen_; ++i) {
+        if (i == 4 || i == 7) {
+            if (line[i] != '-') {
                 throw std::runtime_error(createErrorMessage(
-                            lineCount_, i + 1, "invalid format"));
+                            lineCount_, i + 1, "invalid date format"));
             }
         } else {
-            if (i == 11 && (line[i] == '+' || line[i] == '-')) {
-                continue;
-            } else if (line[i] == '.') {
-                if (hasDot == true) {
-                    throw std::runtime_error(createErrorMessage(
-                                lineCount_, i + 1, "invalid price"));
-                }
-                hasDot = true;
-            } else if (std::isdigit(static_cast<unsigned char>(line[i]))) {
-                hasDigit = true;
-            } else {
+            if (std::isdigit(static_cast<unsigned char>(line[i])) == false) {
                 throw std::runtime_error(createErrorMessage(
-                            lineCount_, i + 1, "invalid price"));
+                            lineCount_, i + 1, "invalid date format"));
             }
+        }
+    }
+}
+
+void ExchangeRate::checkSeparatorFormat(const std::string& separator) const {
+    std::string format = getSeparator();
+    for (size_t i = 0; i < getSeparatorLen(); ++i) {
+        if (format[i] != separator[i]) {
+            throw std::runtime_error(createErrorMessage(
+                        lineCount_, dateLen_ + 1 + i, "invalid separator format"));
+        }
+    }
+}
+
+void ExchangeRate::checkValueFormat(const std::string& value) const {
+    bool hasDot = false;
+    bool hasDigit = false;
+    for (size_t i = 0; i < value.length(); ++i) {
+        if (i == 0 && (value[i] == '+' || value[i] == '-')) {
+            continue;
+        } else if (value[i] == '.') {
+            if (hasDot == true) {
+                throw std::runtime_error(createErrorMessage(lineCount_,
+                            getValueIndex() + i + 1, "invalid value"));
+            }
+            hasDot = true;
+        } else if (std::isdigit(static_cast<unsigned char>(value[i]))) {
+            hasDigit = true;
+        } else {
+            throw std::runtime_error(createErrorMessage(
+                        lineCount_, getValueIndex() + i + 1, "invalid value"));
         }
     }
     if (hasDigit == false) {
         throw std::runtime_error(createErrorMessage(
-                    lineCount_, 12, "invalid price"));
+                    lineCount_, getValueIndex() + 1, "invalid value"));
     }
 }
 
@@ -138,27 +175,34 @@ int ExchangeRate::extractDate(const std::string& line) const {
     return year * 10000 + month * 100 + date;
 }
 
-double ExchangeRate::extractRate(const std::string& line) const {
+double ExchangeRate::extractValue(const std::string& value) const {
     char* end;
     errno = 0;
-    double ret = std::strtod(line.c_str() + 11, &end);
+    double ret = std::strtod(value.c_str(), &end);
     if (*end != '\0') {
         throw std::runtime_error(createErrorMessage(
-                    lineCount_, end - line.c_str() + 1, "invalid price"));
+                    lineCount_, (end - value.c_str()) + getValueIndex() + 1,
+                    "invalid value"));
     }
     if (ret < 0) {
         throw std::runtime_error(createErrorMessage(
-                    lineCount_, 12, "negative price"));
+                    lineCount_, getValueIndex() + 1,
+                    "negative value"));
+    } else if (ret > getValueMax()) {
+        throw std::runtime_error(createErrorMessage(
+                    lineCount_, getValueIndex() + 1,
+                    "exceeding maximum value"));
     }
     if (errno == ERANGE) {
         throw std::runtime_error(createErrorMessage(
-                    lineCount_, 12, "price out of double range"));
+                    lineCount_, getValueIndex() + 1,
+                    "value out of double range"));
     }
     return ret;
 }
 
 std::string ExchangeRate::createErrorMessage(
-    int line, int column, const std::string& msg) const {
+    size_t line, size_t column, const std::string& msg) const {
     if (column <= 0) {
         if (line <= 0) {
             return "Error: " + filename_ + ": " + msg;

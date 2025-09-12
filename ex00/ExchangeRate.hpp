@@ -6,7 +6,7 @@
 /*   By: akyoshid <akyoshid@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/10 14:54:52 by akyoshid          #+#    #+#             */
-/*   Updated: 2025/09/12 12:16:07 by akyoshid         ###   ########.fr       */
+/*   Updated: 2025/09/12 12:48:10 by akyoshid         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,6 +25,7 @@ class ExchangeRate {
     std::string filename_;
     int lineCount_;
     static const size_t dateLen_;
+    std::string getHeader() const;
     std::string getSeparator() const;
     size_t getSeparatorLen() const;
     size_t getValueIndex() const;

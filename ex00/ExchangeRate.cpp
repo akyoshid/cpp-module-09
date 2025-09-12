@@ -6,7 +6,7 @@
 /*   By: akyoshid <akyoshid@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/10 14:54:44 by akyoshid          #+#    #+#             */
-/*   Updated: 2025/09/12 12:31:08 by akyoshid         ###   ########.fr       */
+/*   Updated: 2025/09/12 12:49:21 by akyoshid         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,7 +31,7 @@ ExchangeRate::ExchangeRate(const std::string& filename)
     std::string line = "";
     std::getline(ifs, line);
     ++lineCount_;
-    if (line != "date,exchange_rate")
+    if (line != getHeader())
         throw std::runtime_error(
                 createErrorMessage(lineCount_, 0, "invalid header"));
     while (std::getline(ifs, line)) {
@@ -46,6 +46,10 @@ ExchangeRate::ExchangeRate(const std::string& filename)
 }
 
 ExchangeRate::~ExchangeRate() {
+}
+
+std::string ExchangeRate::getHeader() const {
+    return "date,exchange_rate";
 }
 
 std::string ExchangeRate::getSeparator() const {

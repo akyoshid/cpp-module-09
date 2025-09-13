@@ -6,7 +6,7 @@
 /*   By: akyoshid <akyoshid@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/09 05:41:02 by akyoshid          #+#    #+#             */
-/*   Updated: 2025/09/12 16:34:57 by akyoshid         ###   ########.fr       */
+/*   Updated: 2025/09/13 12:44:56 by akyoshid         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,7 +17,7 @@
 
 int main(int argc, char *argv[]) {
     if (argc != 2) {
-        std::cerr << "Usage: ./btc [database]" << std::endl;
+        std::cerr << "Usage: ./btc <database>" << std::endl;
         return 1;
     }
     try {

@@ -6,7 +6,7 @@
 /*   By: akyoshid <akyoshid@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/12 19:17:41 by akyoshid          #+#    #+#             */
-/*   Updated: 2025/09/12 22:30:36 by akyoshid         ###   ########.fr       */
+/*   Updated: 2025/09/13 12:44:44 by akyoshid         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,7 +16,7 @@
 
 int main(int argc, char *argv[]) {
     if (argc < 2) {
-        std::cerr << "Usage: ./RPN [expression ...]" << std::endl;
+        std::cerr << "Usage: ./RPN <expression> ..." << std::endl;
         return 1;
     }
     RPN rpn;

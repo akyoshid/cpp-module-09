@@ -36,6 +36,6 @@ re: fclean all
 val:
 	valgrind --leak-check=full --leak-check=full \
 	--show-leak-kinds=definite,indirect,possible \
-	--track-fds=yes ./$(NAME) 11 2 17 0 16 8 6 15 10 3 21 1 18 9 14 19 12 5 4 20 13
+	--track-fds=yes ./$(NAME) 11 2 17 0 16 8 6 15 10 3 21 1 18 9 14 19 12 5 4 20 13 7
 
 .PHONY: all clean fclean re val

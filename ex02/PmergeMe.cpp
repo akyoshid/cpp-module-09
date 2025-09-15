@@ -6,7 +6,7 @@
 /*   By: akyoshid <akyoshid@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/12 23:43:19 by akyoshid          #+#    #+#             */
-/*   Updated: 2025/09/15 16:15:18 by akyoshid         ###   ########.fr       */
+/*   Updated: 2025/09/15 19:29:58 by akyoshid         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,6 +25,7 @@
 PmergeMe::PmergeMe(int argc, char **argv) : compCount_(0) {
     parseArgs(argc, argv);
     deq_.assign(vec_.begin(), vec_.end());
+    initCustomJacobsthal();
     displayBefore();
     sortVector();
     displayAfter();
@@ -128,15 +129,11 @@ int PmergeMe::powerOfTwo(int n) const {
     return 1 << n;
 }
 
-// Returns the n-th Jacobsthal number using the closed formula:
-// J(n) = (2^n - (-1)^n) / 3
-// For even n: J(n) = (2^n - 1) / 3
-// For odd n:  J(n) = (2^n + 1) / 3
-int PmergeMe::getJacobsthalNumber(int n) const {
-    if (n % 2 == 0) {
-        return (powerOfTwo(n) - 1) / 3;
-    } else {
-        return (powerOfTwo(n) + 1) / 3;
+void PmergeMe::initCustomJacobsthal() {
+    customJacobsthal_[0] = 2;
+    customJacobsthal_[1] = 2;
+    for (int i = 2; i < CUSTOM_JACOBSTHAL_SIZE; ++i) {
+        customJacobsthal_[i] = customJacobsthal_[i - 1] + 2 * customJacobsthal_[i - 2];
     }
 }
 

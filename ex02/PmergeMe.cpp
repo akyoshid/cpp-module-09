@@ -116,6 +116,25 @@ void PmergeMe::displayBefore() const {
     std::cout << std::endl;
 }
 
+int PmergeMe::powerOfTwo(int n) const {
+    if (n >= (static_cast<int>(sizeof(int)) * 8) - 1) {
+        throw std::runtime_error("Error: powerOfTwo failed due to overflow");
+    }
+    return 1 << n;
+}
+
+// Returns the n-th Jacobsthal number using the closed formula:
+// J(n) = (2^n - (-1)^n) / 3
+// For even n: J(n) = (2^n - 1) / 3
+// For odd n:  J(n) = (2^n + 1) / 3
+int PmergeMe::getJacobsthalNumber(int n) const {
+    if (n % 2 == 0) {
+        return (powerOfTwo(n) - 1) / 3;
+    } else {
+        return (powerOfTwo(n) + 1) / 3;
+    }
+}
+
 void PmergeMe::displayAfter() const {
     std::cout << "After: ";
     size_t size = vec_.size();

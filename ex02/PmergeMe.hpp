@@ -29,6 +29,8 @@ class PmergeMe {
     unsigned int parseNumber(const std::string& num);
     void sortVector();
     void sortDeque();
+    int powerOfTwo(int n) const;
+    int getJacobsthalNumber(int n) const;
     void displayBefore() const;
     void displayAfter() const;
     void displayTimes() const;

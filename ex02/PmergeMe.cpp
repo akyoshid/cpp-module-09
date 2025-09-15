@@ -6,7 +6,7 @@
 /*   By: akyoshid <akyoshid@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/12 23:43:19 by akyoshid          #+#    #+#             */
-/*   Updated: 2025/09/15 10:51:12 by akyoshid         ###   ########.fr       */
+/*   Updated: 2025/09/15 16:15:18 by akyoshid         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,14 +22,15 @@
 #include <time.h>
 #include "PmergeMe.hpp"
 
-PmergeMe::PmergeMe(int argc, char **argv) {
+PmergeMe::PmergeMe(int argc, char **argv) : compCount_(0) {
     parseArgs(argc, argv);
     deq_.assign(vec_.begin(), vec_.end());
     displayBefore();
     sortVector();
-    sortDeque();
     displayAfter();
+    sortDeque();
     displayTimes();
+    std::cout << compCount_ << std::endl;
 }
 
 PmergeMe::~PmergeMe() {
@@ -69,8 +70,8 @@ unsigned int PmergeMe::parseNumber(const std::string& num) {
         throw std::runtime_error("Error: too large number");
     } else if (*endptr != '\0') {
         throw std::runtime_error("Error: invalid character");
-    } else if (ret == 0) {
-        throw std::runtime_error("Error: invalid integer 0");
+    // } else if (ret == 0) {
+    //     throw std::runtime_error("Error: invalid integer 0");
     }
     return static_cast<unsigned int>(ret);
 }
@@ -80,7 +81,7 @@ void PmergeMe::sortVector() {
     timespec end;
     if (clock_gettime(CLOCK_MONOTONIC, &start) != 0)
         throw std::runtime_error("Error: clock_gettime failed");
-    std::sort(vec_.begin(), vec_.end());
+    mergeInsertionSortVector(0);
     if (clock_gettime(CLOCK_MONOTONIC, &end) != 0)
         throw std::runtime_error("Error: clock_gettime failed");
     vecSortTime_ = getSortTime(start, end);
@@ -97,23 +98,27 @@ void PmergeMe::sortDeque() {
     deqSortTime_ = getSortTime(start, end);
 }
 
-void PmergeMe::displayBefore() const {
-    std::cout << "Before: ";
-    size_t size = vec_.size();
-    if (size > 5) {
-        for (size_t i = 0; i < 4; ++i) {
-            std::cout << vec_[i] << " ";
+void PmergeMe::mergeInsertionSortVector(int depth) {
+    int elementSize = powerOfTwo(depth);
+    if (elementSize > static_cast<int>(vec_.size()) / 2)
+        return ;
+    for (int i = elementSize - 1;
+        i + elementSize < static_cast<int>(vec_.size()); i += elementSize * 2) {
+        if (vec_[i] > vec_[i + elementSize]) {
+            swapElementVector(i, i + elementSize, elementSize);
         }
-        std::cout << "[...]";
-    } else {
-        for (size_t i = 0; i < size; ++i) {
-            std::cout << vec_[i];
-            if (i < size - 1) {
-                std::cout << " ";
-            }
-        }
+        ++compCount_;
     }
-    std::cout << std::endl;
+    mergeInsertionSortVector(depth + 1);
+}
+
+void PmergeMe::swapElementVector(int i1, int i2, int elementSize) {
+    for (int i = 0; i < elementSize; ++i) {
+        unsigned int tmp;
+        tmp = vec_[i1 - i];
+        vec_[i1 - i] = vec_[i2 - i];
+        vec_[i2 - i] = tmp;
+    }
 }
 
 int PmergeMe::powerOfTwo(int n) const {
@@ -135,22 +140,53 @@ int PmergeMe::getJacobsthalNumber(int n) const {
     }
 }
 
+void PmergeMe::displayBefore() const {
+    std::cout << "Before: ";
+    size_t size = vec_.size();
+    for (size_t i = 0; i < size; ++i) {
+        std::cout << vec_[i];
+        if (i < size - 1) {
+            std::cout << " ";
+        }
+    }
+    // if (size > 5) {
+    //     for (size_t i = 0; i < 4; ++i) {
+    //         std::cout << vec_[i] << " ";
+    //     }
+    //     std::cout << "[...]";
+    // } else {
+    //     for (size_t i = 0; i < size; ++i) {
+    //         std::cout << vec_[i];
+    //         if (i < size - 1) {
+    //             std::cout << " ";
+    //         }
+    //     }
+    // }
+    std::cout << std::endl;
+}
+
 void PmergeMe::displayAfter() const {
     std::cout << "After: ";
     size_t size = vec_.size();
-    if (size > 5) {
-        for (size_t i = 0; i < 4; ++i) {
-            std::cout << vec_[i] << " ";
-        }
-        std::cout << "[...]";
-    } else {
-        for (size_t i = 0; i < size; ++i) {
-            std::cout << vec_[i];
-            if (i < size - 1) {
-                std::cout << " ";
-            }
+    for (size_t i = 0; i < size; ++i) {
+        std::cout << vec_[i];
+        if (i < size - 1) {
+            std::cout << " ";
         }
     }
+    // if (size > 5) {
+    //     for (size_t i = 0; i < 4; ++i) {
+    //         std::cout << vec_[i] << " ";
+    //     }
+    //     std::cout << "[...]";
+    // } else {
+    //     for (size_t i = 0; i < size; ++i) {
+    //         std::cout << vec_[i];
+    //         if (i < size - 1) {
+    //             std::cout << " ";
+    //         }
+    //     }
+    // }
     std::cout << std::endl;
 }
 

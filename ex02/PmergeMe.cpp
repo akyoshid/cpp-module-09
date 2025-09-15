@@ -38,6 +38,8 @@ PmergeMe::~PmergeMe() {
 void PmergeMe::parseArgs(int argc, char **argv) {
     if (argc < 2) {
         throw std::runtime_error("Usage: ./PmergeMe <positive integer> ...");
+    } else if (argc > 100000) {
+        throw std::runtime_error("Error: too many numbers");
     }
     vec_.reserve(argc - 1);
     for (int i = 1; i < argc; ++i) {

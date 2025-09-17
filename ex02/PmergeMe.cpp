@@ -6,7 +6,7 @@
 /*   By: akyoshid <akyoshid@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/12 23:43:19 by akyoshid          #+#    #+#             */
-/*   Updated: 2025/09/15 19:29:58 by akyoshid         ###   ########.fr       */
+/*   Updated: 2025/09/17 18:50:28 by akyoshid         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -103,14 +103,170 @@ void PmergeMe::mergeInsertionSortVector(int depth) {
     int elementSize = powerOfTwo(depth);
     if (elementSize > static_cast<int>(vec_.size()) / 2)
         return ;
+    int pairSize = elementSize * 2;
     for (int i = elementSize - 1;
-        i + elementSize < static_cast<int>(vec_.size()); i += elementSize * 2) {
+        i + elementSize < static_cast<int>(vec_.size()); i += pairSize) {
         if (vec_[i] > vec_[i + elementSize]) {
             swapElementVector(i, i + elementSize, elementSize);
         }
         ++compCount_;
     }
     mergeInsertionSortVector(depth + 1);
+    // if (depth >= 0) { //
+    // std::cout << "🔥depth: " << depth << std::endl; //
+    // displayBefore(); //
+    initMainVec(elementSize, pairSize);
+    initPendVec(elementSize, pairSize);
+    // displayMainVec(); //
+    // displayPendVec(); //
+    int customJacobsthalIndex = 0;
+    int groupSize;
+    while (!pendVec_.empty()) {
+        if (customJacobsthalIndex >= CUSTOM_JACOBSTHAL_SIZE)
+            throw std::runtime_error("Error: custom Jacobsthal numbers exhausted");
+        groupSize = customJacobsthal_[customJacobsthalIndex];
+        if (groupSize > static_cast<int>(pendVec_.size())) {
+            groupSize = static_cast<int>(pendVec_.size());
+        }
+        for (int groupIndex = groupSize - 1; groupIndex >= 0; --groupIndex) {
+            int destMainIndex = getDestMainIndexVec(groupIndex);
+            int destIndex;
+            if (mainVec_[destMainIndex].pairIndex_ == NO_PAIR_INDEX) {
+                destIndex = mainVec_[destMainIndex].index_ - elementSize + 1;
+            } else {
+                destIndex = pendVec_[mainVec_[destMainIndex].pairIndex_].index_ - elementSize + 1;
+            }
+            // std::cout << "srcPendIndex(groupIndex): " << groupIndex << std::endl; //
+            // std::cout << "destMainIndex: " << destMainIndex << std::endl; //
+            // std::cout << "destIndex: " << destIndex << std::endl; //
+            std::vector<unsigned int> tmp(vec_.begin() + pendVec_[groupIndex].index_ - elementSize + 1, vec_.begin() + pendVec_[groupIndex].index_ + 1);
+            vec_.erase(vec_.begin() + pendVec_[groupIndex].index_ - elementSize + 1, vec_.begin() + pendVec_[groupIndex].index_ + 1);
+            vec_.insert(vec_.begin() + destIndex, tmp.begin(), tmp.end());
+            // displayAfter(); //
+            fixMainVec(destMainIndex, groupIndex, elementSize);
+            fixPendVec(destMainIndex, groupIndex, elementSize);
+            t_index_set tmpMain = {destIndex + elementSize - 1, NO_PAIR_INDEX};
+            mainVec_.insert(mainVec_.begin() + destMainIndex, tmpMain);
+            // displayMainVec(); //
+            // displayPendVec(); //
+        }
+        pendVec_.erase(pendVec_.begin(), pendVec_.begin() + groupSize);
+        ++customJacobsthalIndex;
+    }
+    // } //
+}
+
+void PmergeMe::initMainVec(int elementSize, int pairSize) {
+    int vecSize = static_cast<int>(vec_.size());
+    mainVec_.clear();
+    if (elementSize <= vecSize) {
+        t_index_set tmp = {elementSize - 1, NO_PAIR_INDEX};
+        mainVec_.push_back(tmp);
+    }
+    if (pairSize <= vecSize) {
+        t_index_set tmp = {pairSize - 1, NO_PAIR_INDEX};
+        mainVec_.push_back(tmp);
+    }
+    int pairPendIndex = 0;
+    for (int i = pairSize * 2 - 1; i < vecSize; i += pairSize) {
+        t_index_set tmp = {i, pairPendIndex};
+        mainVec_.push_back(tmp);
+        ++pairPendIndex;
+    }
+}
+
+void PmergeMe::initPendVec(int elementSize, int pairSize) {
+    int vecSize = static_cast<int>(vec_.size());
+    pendVec_.clear();
+    int pairMainIndex = 2;
+    for (int i = pairSize + elementSize - 1; i < vecSize; i += pairSize) {
+        if (i + elementSize < vecSize) {
+            t_index_set tmp = {i, pairMainIndex};
+            pendVec_.push_back(tmp);
+        } else {
+            t_index_set tmp = {i, NO_PAIR_INDEX};
+            pendVec_.push_back(tmp);
+        }
+        ++pairMainIndex;
+    }
+}
+
+int PmergeMe::getDestMainIndexVec(int srcPendIndex) {
+    int startMainIndex = 0;
+    int endMainIndex;
+    if (pendVec_[srcPendIndex].pairIndex_ == NO_PAIR_INDEX) {
+        endMainIndex = static_cast<int>(mainVec_.size()) - 1;
+    } else {
+        endMainIndex = pendVec_[srcPendIndex].pairIndex_ - 1;
+    }
+    while (startMainIndex <= endMainIndex) {
+        int midMainIndex = startMainIndex + (endMainIndex - startMainIndex) / 2;
+        ++compCount_;
+        // std::cout << "getDestMainIndexVec: startMainIndex: " << startMainIndex << std::endl; //
+        // std::cout << "getDestMainIndexVec: midMainIndex: " << midMainIndex << std::endl; //
+        // std::cout << "getDestMainIndexVec: endMainIndex: " << endMainIndex << std::endl; //
+        // std::cout << "getDestMainIndexVec: pendVec_[srcPendIndex].index_: " << pendVec_[srcPendIndex].index_ << std::endl; //
+        // std::cout << "getDestMainIndexVec: mainVec_[midMainIndex].index_: " << mainVec_[midMainIndex].index_ << std::endl; //
+        // std::cout << "getDestMainIndexVec: vec_[pendVec_[srcPendIndex].index_]: " << vec_[pendVec_[srcPendIndex].index_] << std::endl; //
+        // std::cout << "getDestMainIndexVec: vec_[mainVec_[midMainIndex].index_]: " << vec_[mainVec_[midMainIndex].index_] << std::endl; //
+        if (vec_[pendVec_[srcPendIndex].index_]
+            < vec_[mainVec_[midMainIndex].index_]) {
+            endMainIndex = midMainIndex - 1;
+        } else {
+            startMainIndex = midMainIndex + 1;
+        }
+    }
+    return startMainIndex;
+}
+
+// int PmergeMe::getDestMainIndexVec(int srcPendIndex) {
+//     int endMainIndex = pendVec_[srcPendIndex].pairIndex_ - 1;
+//     int value = vec_[pendVec_[srcPendIndex].index_];
+//     return binarySearchVec(value, 0, endMainIndex);
+// }
+
+// int PmergeMe::binarySearchVec(int value, int startMainIndex, int endMainIndex) {
+//     while (startMainIndex <= endMainIndex) {
+//         int midMainIndex = startMainIndex + (endMainIndex - startMainIndex) / 2;
+//         ++compCount_;
+//         if (value < vec_[mainVec_[midMainIndex].index_]) {
+//             endMainIndex = midMainIndex - 1;
+//         } else {
+//             startMainIndex = midMainIndex + 1;
+//         }
+//     }
+//     return startMainIndex;
+// }
+
+void PmergeMe::fixMainVec(int destMainIndex, int srcPendIndex, int elementSize) {
+    int endMainIndex = pendVec_[srcPendIndex].pairIndex_;
+    if (endMainIndex == NO_PAIR_INDEX) {
+        endMainIndex = static_cast<int>(mainVec_.size());
+    }
+    // std::cout << "endMainIndex: " << endMainIndex << std::endl; //
+    for (int i = destMainIndex; i < endMainIndex; ++i) {
+        mainVec_[i].index_ += elementSize;
+    }
+    // if (pendVec_[srcPendIndex].pairIndex_ != NO_PAIR_INDEX)
+    //     mainVec_[pendVec_[srcPendIndex].pairIndex_].pairIndex_ = NO_PAIR_INDEX;
+}
+
+void PmergeMe::fixPendVec(int destMainIndex, int srcPendIndex, int elementSize) {
+    int beginPendIndex = mainVec_[destMainIndex].pairIndex_;
+    if (beginPendIndex == NO_PAIR_INDEX) {
+        beginPendIndex = 0;
+    }
+    if (pendVec_[srcPendIndex].pairIndex_ != NO_PAIR_INDEX)
+        mainVec_[pendVec_[srcPendIndex].pairIndex_].pairIndex_ = NO_PAIR_INDEX;
+    for (int i = beginPendIndex; i < static_cast<int>(pendVec_.size()); ++i) {
+        if (i < srcPendIndex) {
+            pendVec_[i].index_ += elementSize;
+        }
+        if (pendVec_[i].pairIndex_ != NO_PAIR_INDEX) {
+            ++(pendVec_[i].pairIndex_);
+        }
+    }
+    pendVec_[srcPendIndex].pairIndex_ = NO_PAIR_INDEX;
 }
 
 void PmergeMe::swapElementVector(int i1, int i2, int elementSize) {
@@ -207,4 +363,28 @@ double PmergeMe::getSortTime(const timespec& start, const timespec& end) const {
         nsec += 1000000000L;
     }
     return static_cast<double>(sec) + static_cast<double>(nsec) / 1000000000.0;
+}
+
+void PmergeMe::displayMainVec() const {
+    for (size_t i = 0; i < mainVec_.size(); ++i) {
+        std::cout << "{" << mainVec_[i].index_ << ",";
+        if (mainVec_[i].pairIndex_ != NO_PAIR_INDEX) {
+            std::cout << mainVec_[i].pairIndex_ << "} ";
+        } else {
+            std::cout << "-} ";
+        }
+    }
+    std::cout << std::endl;
+}
+
+void PmergeMe::displayPendVec() const {
+    for (size_t i = 0; i < pendVec_.size(); ++i) {
+        std::cout << "{" << pendVec_[i].index_ << ",";
+        if (pendVec_[i].pairIndex_ != NO_PAIR_INDEX) {
+            std::cout << pendVec_[i].pairIndex_ << "} ";
+        } else {
+            std::cout << "-} ";
+        }
+    }
+    std::cout << std::endl;
 }

@@ -6,7 +6,7 @@
 /*   By: akyoshid <akyoshid@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/12 23:43:19 by akyoshid          #+#    #+#             */
-/*   Updated: 2025/09/18 17:40:02 by akyoshid         ###   ########.fr       */
+/*   Updated: 2025/09/18 17:59:49 by akyoshid         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,10 +28,9 @@ PmergeMe::PmergeMe(int argc, char **argv) : compCount_(0) {
     initCustomJacobsthal();
     displayBeforeVec();
     sortVector();
-    sortDeque();
     displayAfterVec();
     // displayBeforeDeq();
-    // sortDeque();
+    sortDeque();
     // displayAfterDeq();
     displayTimes();
     // std::cout << compCount_ << std::endl;
@@ -153,22 +152,15 @@ void PmergeMe::mergeInsertionSortVector(int depth) {
         i + elementSize < static_cast<int>(vec_.size()); i += pairSize) {
         ++compCount_;
         if (vec_[i] > vec_[i + elementSize]) {
-                // tmp.assign(vec_.begin() + i + 1, vec_.begin() + i + 1 + elementSize);
-                // vec_.erase(vec_.begin() + i + 1, vec_.begin() + i + 1 + elementSize);
-                // vec_.insert(vec_.begin() + i - (elementSize - 1), tmp.begin(), tmp.end());
+            // tmp.assign(vec_.begin() + i + 1, vec_.begin() + i + 1 + elementSize);
+            // vec_.erase(vec_.begin() + i + 1, vec_.begin() + i + 1 + elementSize);
+            // vec_.insert(vec_.begin() + i - (elementSize - 1), tmp.begin(), tmp.end());
             std::rotate(vec_.begin() + i - (elementSize - 1), vec_.begin() + i + 1, vec_.begin() + i + 1 + elementSize);
         }
     }
-    // std::cout << "🔥depth: " << depth << std::endl; //
-    // displayAfter(); //
     mergeInsertionSortVector(depth + 1);
-    // if (depth >= 0) { //
-    // std::cout << "🔥depth: " << depth << std::endl; //
-    // displayBefore(); //
     initMainVec(elementSize, pairSize);
     initPendVec(elementSize, pairSize);
-    // displayMainVec(); //
-    // displayPendVec(); //
     int customJacobsthalIndex = 0;
     int groupSize;
     while (!pendVec_.empty()) {
@@ -190,26 +182,19 @@ void PmergeMe::mergeInsertionSortVector(int depth) {
             } else {
                 destIndex = pendVec_[pendVec_.size() - 1].index_ - elementSize + 1;
             }
-            // std::cout << "srcPendIndex(groupIndex): " << groupIndex << std::endl; //
-            // std::cout << "destMainIndex: " << destMainIndex << std::endl; //
-            // std::cout << "destIndex: " << destIndex << std::endl; //
             tmp.assign(vec_.begin() + pendVec_[groupIndex].index_ - elementSize + 1, vec_.begin() + pendVec_[groupIndex].index_ + 1);
             vec_.erase(vec_.begin() + pendVec_[groupIndex].index_ - elementSize + 1, vec_.begin() + pendVec_[groupIndex].index_ + 1);
             vec_.insert(vec_.begin() + destIndex, tmp.begin(), tmp.end());
-                // std::rotate(vec_.begin() + destIndex, vec_.begin() + pendVec_[groupIndex].index_ - elementSize + 1, vec_.begin() + pendVec_[groupIndex].index_ + 1);
-            // displayAfter(); //
+            // std::rotate(vec_.begin() + destIndex, vec_.begin() + pendVec_[groupIndex].index_ - elementSize + 1, vec_.begin() + pendVec_[groupIndex].index_ + 1);
             fixMainVec(destMainIndex, groupIndex, elementSize);
             fixPendVec(destIndex, groupIndex, elementSize);
             t_index_set tmpMain = {destIndex + elementSize - 1, NO_PAIR_INDEX};
             mainVec_.insert(mainVec_.begin() + destMainIndex, tmpMain);
-            // displayMainVec(); //
-            // displayPendVec(); //
         }
         pendVec_.erase(pendVec_.begin(), pendVec_.begin() + groupSize);
         fixMainVecAfterPendErase(groupSize);
         ++customJacobsthalIndex;
     }
-    // } //
 }
 
 void PmergeMe::initMainVec(int elementSize, int pairSize) {
@@ -259,13 +244,6 @@ int PmergeMe::getDestMainIndexVec(int srcPendIndex) {
     }
     while (startMainIndex <= endMainIndex) {
         int midMainIndex = startMainIndex + (endMainIndex - startMainIndex) / 2;
-        // std::cout << "getDestMainIndexVec: startMainIndex: " << startMainIndex << std::endl; //
-        // std::cout << "getDestMainIndexVec: midMainIndex: " << midMainIndex << std::endl; //
-        // std::cout << "getDestMainIndexVec: endMainIndex: " << endMainIndex << std::endl; //
-        // std::cout << "getDestMainIndexVec: pendVec_[srcPendIndex].index_: " << pendVec_[srcPendIndex].index_ << std::endl; //
-        // std::cout << "getDestMainIndexVec: mainVec_[midMainIndex].index_: " << mainVec_[midMainIndex].index_ << std::endl; //
-        // std::cout << "getDestMainIndexVec: vec_[pendVec_[srcPendIndex].index_]: " << vec_[pendVec_[srcPendIndex].index_] << std::endl; //
-        // std::cout << "getDestMainIndexVec: vec_[mainVec_[midMainIndex].index_]: " << vec_[mainVec_[midMainIndex].index_] << std::endl; //
         ++compCount_;
         if (vec_[pendVec_[srcPendIndex].index_]
             < vec_[mainVec_[midMainIndex].index_]) {
@@ -422,22 +400,15 @@ void PmergeMe::mergeInsertionSortDeque(int depth) {
     for (int i = elementSize - 1;
         i + elementSize < static_cast<int>(deq_.size()); i += pairSize) {
         if (deq_[i] > deq_[i + elementSize]) {
-                // tmp.assign(deq_.begin() + i + 1, deq_.begin() + i + 1 + elementSize);
-                // deq_.erase(deq_.begin() + i + 1, deq_.begin() + i + 1 + elementSize);
-                // deq_.insert(deq_.begin() + i - (elementSize - 1), tmp.begin(), tmp.end());
+            // tmp.assign(deq_.begin() + i + 1, deq_.begin() + i + 1 + elementSize);
+            // deq_.erase(deq_.begin() + i + 1, deq_.begin() + i + 1 + elementSize);
+            // deq_.insert(deq_.begin() + i - (elementSize - 1), tmp.begin(), tmp.end());
             std::rotate(deq_.begin() + i - (elementSize - 1), deq_.begin() + i + 1, deq_.begin() + i + 1 + elementSize);
         }
     }
-    // std::cout << "🔥depth: " << depth << std::endl; //
-    // displayAfter(); //
     mergeInsertionSortDeque(depth + 1);
-    // if (depth >= 0) { //
-    // std::cout << "🔥depth: " << depth << std::endl; //
-    // displayBefore(); //
     initMainDeq(elementSize, pairSize);
     initPendDeq(elementSize, pairSize);
-    // displayMainDeq(); //
-    // displayPendDeq(); //
     int customJacobsthalIndex = 0;
     int groupSize;
     while (!pendDeq_.empty()) {
@@ -459,26 +430,19 @@ void PmergeMe::mergeInsertionSortDeque(int depth) {
             } else {
                 destIndex = pendDeq_[pendDeq_.size() - 1].index_ - elementSize + 1;
             }
-            // std::cout << "srcPendIndex(groupIndex): " << groupIndex << std::endl; //
-            // std::cout << "destMainIndex: " << destMainIndex << std::endl; //
-            // std::cout << "destIndex: " << destIndex << std::endl; //
             tmp.assign(deq_.begin() + pendDeq_[groupIndex].index_ - elementSize + 1, deq_.begin() + pendDeq_[groupIndex].index_ + 1);
             deq_.erase(deq_.begin() + pendDeq_[groupIndex].index_ - elementSize + 1, deq_.begin() + pendDeq_[groupIndex].index_ + 1);
             deq_.insert(deq_.begin() + destIndex, tmp.begin(), tmp.end());
-                // std::rotate(deq_.begin() + destIndex, deq_.begin() + pendDeq_[groupIndex].index_ - elementSize + 1, deq_.begin() + pendDeq_[groupIndex].index_ + 1);
-            // displayAfter(); //
+            // std::rotate(deq_.begin() + destIndex, deq_.begin() + pendDeq_[groupIndex].index_ - elementSize + 1, deq_.begin() + pendDeq_[groupIndex].index_ + 1);
             fixMainDeq(destMainIndex, groupIndex, elementSize);
             fixPendDeq(destIndex, groupIndex, elementSize);
             t_index_set tmpMain = {destIndex + elementSize - 1, NO_PAIR_INDEX};
             mainDeq_.insert(mainDeq_.begin() + destMainIndex, tmpMain);
-            // displayMainDeq(); //
-            // displayPendDeq(); //
         }
         pendDeq_.erase(pendDeq_.begin(), pendDeq_.begin() + groupSize);
         fixMainDeqAfterPendErase(groupSize);
         ++customJacobsthalIndex;
     }
-    // } //
 }
 
 void PmergeMe::initMainDeq(int elementSize, int pairSize) {
@@ -526,13 +490,6 @@ int PmergeMe::getDestMainIndexDeq(int srcPendIndex) {
     }
     while (startMainIndex <= endMainIndex) {
         int midMainIndex = startMainIndex + (endMainIndex - startMainIndex) / 2;
-        // std::cout << "getDestMainIndexDeq: startMainIndex: " << startMainIndex << std::endl; //
-        // std::cout << "getDestMainIndexDeq: midMainIndex: " << midMainIndex << std::endl; //
-        // std::cout << "getDestMainIndexDeq: endMainIndex: " << endMainIndex << std::endl; //
-        // std::cout << "getDestMainIndexDeq: pendDeq_[srcPendIndex].index_: " << pendDeq_[srcPendIndex].index_ << std::endl; //
-        // std::cout << "getDestMainIndexDeq: mainDeq_[midMainIndex].index_: " << mainDeq_[midMainIndex].index_ << std::endl; //
-        // std::cout << "getDestMainIndexDeq: deq_[pendDeq_[srcPendIndex].index_]: " << deq_[pendDeq_[srcPendIndex].index_] << std::endl; //
-        // std::cout << "getDestMainIndexDeq: deq_[mainDeq_[midMainIndex].index_]: " << deq_[mainDeq_[midMainIndex].index_] << std::endl; //
         if (deq_[pendDeq_[srcPendIndex].index_]
             < deq_[mainDeq_[midMainIndex].index_]) {
             endMainIndex = midMainIndex - 1;

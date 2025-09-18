@@ -6,7 +6,7 @@
 /*   By: akyoshid <akyoshid@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/12 23:43:19 by akyoshid          #+#    #+#             */
-/*   Updated: 2025/09/18 17:59:49 by akyoshid         ###   ########.fr       */
+/*   Updated: 2025/09/18 18:07:26 by akyoshid         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,7 +33,7 @@ PmergeMe::PmergeMe(int argc, char **argv) : compCount_(0) {
     sortDeque();
     // displayAfterDeq();
     displayTimes();
-    // std::cout << compCount_ << std::endl;
+    std::cout << "Number of comparisons: " << compCount_ << std::endl;
     if (!isSortedVec()) {
         std::cout << "\033[31m" << "VECTOR: NOT SORTED" << "\033[0m" << std::endl;
     }

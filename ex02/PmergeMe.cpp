@@ -6,7 +6,7 @@
 /*   By: akyoshid <akyoshid@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/12 23:43:19 by akyoshid          #+#    #+#             */
-/*   Updated: 2025/09/18 13:58:06 by akyoshid         ###   ########.fr       */
+/*   Updated: 2025/09/18 15:05:54 by akyoshid         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,10 +26,10 @@ PmergeMe::PmergeMe(int argc, char **argv) : compCount_(0) {
     parseArgs(argc, argv);
     deq_.assign(vec_.begin(), vec_.end());
     initCustomJacobsthal();
-    displayBefore();
+    displayBeforeVec();
     sortVector();
-    displayAfter();
     sortDeque();
+    displayAfterVec();
     displayTimes();
     std::cout << compCount_ << std::endl;
     if (!isSortedVec()) {
@@ -41,6 +41,10 @@ PmergeMe::PmergeMe(int argc, char **argv) : compCount_(0) {
 
 PmergeMe::~PmergeMe() {
 }
+
+////////////
+// SHARED //
+////////////
 
 void PmergeMe::parseArgs(int argc, char **argv) {
     if (argc < 2) {
@@ -82,6 +86,47 @@ unsigned int PmergeMe::parseNumber(const std::string& num) {
     return static_cast<unsigned int>(ret);
 }
 
+int PmergeMe::powerOfTwo(int n) const {
+    if (n >= (static_cast<int>(sizeof(int)) * 8) - 1) {
+        throw std::runtime_error("Error: powerOfTwo failed due to overflow");
+    }
+    return 1 << n;
+}
+
+void PmergeMe::initCustomJacobsthal() {
+    customJacobsthal_[0] = 2;
+    customJacobsthal_[1] = 2;
+    for (int i = 2; i < CUSTOM_JACOBSTHAL_SIZE; ++i) {
+        customJacobsthal_[i] = customJacobsthal_[i - 1] + 2 * customJacobsthal_[i - 2];
+    }
+}
+
+void PmergeMe::displayTimes() const {
+    size_t size = vec_.size();
+    std::cout << "Time to process a range of " << size 
+              << " elements with std::vector : " 
+              << std::fixed << std::setprecision(5) 
+              << vecSortTime_ * 1000000 << " us" << std::endl;
+    std::cout << "Time to process a range of " << size 
+              << " elements with std::deque  : " 
+              << std::fixed << std::setprecision(5) 
+              << deqSortTime_ * 1000000 << " us" << std::endl;
+}
+
+double PmergeMe::getSortTime(const timespec& start, const timespec& end) const {
+    long sec  = end.tv_sec  - start.tv_sec;
+    long nsec = end.tv_nsec - start.tv_nsec;
+    if (nsec < 0) {
+        --sec;
+        nsec += 1000000000L;
+    }
+    return static_cast<double>(sec) + static_cast<double>(nsec) / 1000000000.0;
+}
+
+////////////
+// VECTOR //
+////////////
+
 void PmergeMe::sortVector() {
     timespec start;
     timespec end;
@@ -91,17 +136,6 @@ void PmergeMe::sortVector() {
     if (clock_gettime(CLOCK_MONOTONIC, &end) != 0)
         throw std::runtime_error("Error: clock_gettime failed");
     vecSortTime_ = getSortTime(start, end);
-}
-
-void PmergeMe::sortDeque() {
-    timespec start;
-    timespec end;
-    if (clock_gettime(CLOCK_MONOTONIC, &start) != 0)
-        throw std::runtime_error("Error: clock_gettime failed");
-    std::sort(deq_.begin(), deq_.end());
-    if (clock_gettime(CLOCK_MONOTONIC, &end) != 0)
-        throw std::runtime_error("Error: clock_gettime failed");
-    deqSortTime_ = getSortTime(start, end);
 }
 
 void PmergeMe::mergeInsertionSortVector(int depth) {
@@ -166,6 +200,15 @@ void PmergeMe::mergeInsertionSortVector(int depth) {
         ++customJacobsthalIndex;
     }
     // } //
+}
+
+void PmergeMe::swapElementVector(int i1, int i2, int elementSize) {
+    for (int i = 0; i < elementSize; ++i) {
+        unsigned int tmp;
+        tmp = vec_[i1 - i];
+        vec_[i1 - i] = vec_[i2 - i];
+        vec_[i2 - i] = tmp;
+    }
 }
 
 void PmergeMe::initMainVec(int elementSize, int pairSize) {
@@ -269,31 +312,7 @@ void PmergeMe::fixMainVecAfterPendErase(int groupSize) {
     }
 }
 
-void PmergeMe::swapElementVector(int i1, int i2, int elementSize) {
-    for (int i = 0; i < elementSize; ++i) {
-        unsigned int tmp;
-        tmp = vec_[i1 - i];
-        vec_[i1 - i] = vec_[i2 - i];
-        vec_[i2 - i] = tmp;
-    }
-}
-
-int PmergeMe::powerOfTwo(int n) const {
-    if (n >= (static_cast<int>(sizeof(int)) * 8) - 1) {
-        throw std::runtime_error("Error: powerOfTwo failed due to overflow");
-    }
-    return 1 << n;
-}
-
-void PmergeMe::initCustomJacobsthal() {
-    customJacobsthal_[0] = 2;
-    customJacobsthal_[1] = 2;
-    for (int i = 2; i < CUSTOM_JACOBSTHAL_SIZE; ++i) {
-        customJacobsthal_[i] = customJacobsthal_[i - 1] + 2 * customJacobsthal_[i - 2];
-    }
-}
-
-void PmergeMe::displayBefore() const {
+void PmergeMe::displayBeforeVec() const {
     std::cout << "Before: ";
     size_t size = vec_.size();
     for (size_t i = 0; i < size; ++i) {
@@ -318,7 +337,7 @@ void PmergeMe::displayBefore() const {
     std::cout << std::endl;
 }
 
-void PmergeMe::displayAfter() const {
+void PmergeMe::displayAfterVec() const {
     std::cout << "After: ";
     size_t size = vec_.size();
     for (size_t i = 0; i < size; ++i) {
@@ -341,28 +360,6 @@ void PmergeMe::displayAfter() const {
     //     }
     // }
     std::cout << std::endl;
-}
-
-void PmergeMe::displayTimes() const {
-    size_t size = vec_.size();
-    std::cout << "Time to process a range of " << size 
-              << " elements with std::vector : " 
-              << std::fixed << std::setprecision(5) 
-              << vecSortTime_ * 1000000 << " us" << std::endl;
-    std::cout << "Time to process a range of " << size 
-              << " elements with std::deque  : " 
-              << std::fixed << std::setprecision(5) 
-              << deqSortTime_ * 1000000 << " us" << std::endl;
-}
-
-double PmergeMe::getSortTime(const timespec& start, const timespec& end) const {
-    long sec  = end.tv_sec  - start.tv_sec;
-    long nsec = end.tv_nsec - start.tv_nsec;
-    if (nsec < 0) {
-        --sec;
-        nsec += 1000000000L;
-    }
-    return static_cast<double>(sec) + static_cast<double>(nsec) / 1000000000.0;
 }
 
 void PmergeMe::displayMainVec() const {
@@ -397,3 +394,19 @@ bool PmergeMe::isSortedVec() const {
     }
     return true;
 }
+
+///////////
+// DEQUE //
+///////////
+
+void PmergeMe::sortDeque() {
+    timespec start;
+    timespec end;
+    if (clock_gettime(CLOCK_MONOTONIC, &start) != 0)
+        throw std::runtime_error("Error: clock_gettime failed");
+    // mergeInsertionSortDeque(0);
+    if (clock_gettime(CLOCK_MONOTONIC, &end) != 0)
+        throw std::runtime_error("Error: clock_gettime failed");
+    deqSortTime_ = getSortTime(start, end);
+}
+

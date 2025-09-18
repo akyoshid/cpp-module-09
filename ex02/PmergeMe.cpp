@@ -6,7 +6,7 @@
 /*   By: akyoshid <akyoshid@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/12 23:43:19 by akyoshid          #+#    #+#             */
-/*   Updated: 2025/09/18 15:05:54 by akyoshid         ###   ########.fr       */
+/*   Updated: 2025/09/18 16:26:36 by akyoshid         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -143,12 +143,17 @@ void PmergeMe::mergeInsertionSortVector(int depth) {
     if (elementSize > static_cast<int>(vec_.size()) / 2)
         return ;
     int pairSize = elementSize * 2;
+    std::vector<unsigned int> tmp;
+    tmp.reserve(elementSize);
     for (int i = elementSize - 1;
         i + elementSize < static_cast<int>(vec_.size()); i += pairSize) {
-        if (vec_[i] > vec_[i + elementSize]) {
-            swapElementVector(i, i + elementSize, elementSize);
-        }
         ++compCount_;
+        if (vec_[i] > vec_[i + elementSize]) {
+                // tmp.assign(vec_.begin() + i + 1, vec_.begin() + i + 1 + elementSize);
+                // vec_.erase(vec_.begin() + i + 1, vec_.begin() + i + 1 + elementSize);
+                // vec_.insert(vec_.begin() + i - (elementSize - 1), tmp.begin(), tmp.end());
+            std::rotate(vec_.begin() + i - (elementSize - 1), vec_.begin() + i + 1, vec_.begin() + i + 1 + elementSize);
+        }
     }
     // std::cout << "🔥depth: " << depth << std::endl; //
     // displayAfter(); //
@@ -184,9 +189,10 @@ void PmergeMe::mergeInsertionSortVector(int depth) {
             // std::cout << "srcPendIndex(groupIndex): " << groupIndex << std::endl; //
             // std::cout << "destMainIndex: " << destMainIndex << std::endl; //
             // std::cout << "destIndex: " << destIndex << std::endl; //
-            std::vector<unsigned int> tmp(vec_.begin() + pendVec_[groupIndex].index_ - elementSize + 1, vec_.begin() + pendVec_[groupIndex].index_ + 1);
+            tmp.assign(vec_.begin() + pendVec_[groupIndex].index_ - elementSize + 1, vec_.begin() + pendVec_[groupIndex].index_ + 1);
             vec_.erase(vec_.begin() + pendVec_[groupIndex].index_ - elementSize + 1, vec_.begin() + pendVec_[groupIndex].index_ + 1);
             vec_.insert(vec_.begin() + destIndex, tmp.begin(), tmp.end());
+                // std::rotate(vec_.begin() + destIndex, vec_.begin() + pendVec_[groupIndex].index_ - elementSize + 1, vec_.begin() + pendVec_[groupIndex].index_ + 1);
             // displayAfter(); //
             fixMainVec(destMainIndex, groupIndex, elementSize);
             fixPendVec(destIndex, groupIndex, elementSize);
@@ -200,15 +206,6 @@ void PmergeMe::mergeInsertionSortVector(int depth) {
         ++customJacobsthalIndex;
     }
     // } //
-}
-
-void PmergeMe::swapElementVector(int i1, int i2, int elementSize) {
-    for (int i = 0; i < elementSize; ++i) {
-        unsigned int tmp;
-        tmp = vec_[i1 - i];
-        vec_[i1 - i] = vec_[i2 - i];
-        vec_[i2 - i] = tmp;
-    }
 }
 
 void PmergeMe::initMainVec(int elementSize, int pairSize) {
@@ -256,7 +253,6 @@ int PmergeMe::getDestMainIndexVec(int srcPendIndex) {
     }
     while (startMainIndex <= endMainIndex) {
         int midMainIndex = startMainIndex + (endMainIndex - startMainIndex) / 2;
-        ++compCount_;
         // std::cout << "getDestMainIndexVec: startMainIndex: " << startMainIndex << std::endl; //
         // std::cout << "getDestMainIndexVec: midMainIndex: " << midMainIndex << std::endl; //
         // std::cout << "getDestMainIndexVec: endMainIndex: " << endMainIndex << std::endl; //
@@ -264,6 +260,7 @@ int PmergeMe::getDestMainIndexVec(int srcPendIndex) {
         // std::cout << "getDestMainIndexVec: mainVec_[midMainIndex].index_: " << mainVec_[midMainIndex].index_ << std::endl; //
         // std::cout << "getDestMainIndexVec: vec_[pendVec_[srcPendIndex].index_]: " << vec_[pendVec_[srcPendIndex].index_] << std::endl; //
         // std::cout << "getDestMainIndexVec: vec_[mainVec_[midMainIndex].index_]: " << vec_[mainVec_[midMainIndex].index_] << std::endl; //
+        ++compCount_;
         if (vec_[pendVec_[srcPendIndex].index_]
             < vec_[mainVec_[midMainIndex].index_]) {
             endMainIndex = midMainIndex - 1;

@@ -6,7 +6,7 @@
 /*   By: akyoshid <akyoshid@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/12 23:43:11 by akyoshid          #+#    #+#             */
-/*   Updated: 2025/09/18 15:04:47 by akyoshid         ###   ########.fr       */
+/*   Updated: 2025/09/18 16:23:12 by akyoshid         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,7 +44,6 @@ class PmergeMe {
     size_t compCount_;
     void sortVector();
     void mergeInsertionSortVector(int depth);
-    void swapElementVector(int i1, int i2, int elementSize);
     void initMainVec(int elementSize, int pairSize);
     void initPendVec(int elementSize, int pairSize);
     int getDestMainIndexVec(int srcPendIndex);
@@ -63,7 +62,6 @@ class PmergeMe {
     double deqSortTime_;
     void sortDeque();
     void mergeInsertionSortDeque(int depth);
-    void swapElementDeque(int i1, int i2, int elementSize);
     void initMainDeq(int elementSize, int pairSize);
     void initPendDeq(int elementSize, int pairSize);
     int getDestMainIndexDeq(int srcPendIndex);

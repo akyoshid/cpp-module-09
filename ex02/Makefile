@@ -37,8 +37,8 @@ val:
 	valgrind --leak-check=full --leak-check=full \
 	--show-leak-kinds=definite,indirect,possible \
 	--track-fds=yes \
-	./PmergeMe `shuf -i 1-100000 -n 10000 | tr "\n" " "`
-# 	./PmergeMe `shuf -i 1-100000 -n 3000 | tr "\n" " "`
+	./PmergeMe `shuf -i 1-100000 -n 3000 | tr "\n" " "`
+# 	./PmergeMe `shuf -i 1-100000 -n 10000 | tr "\n" " "`
 # 	./PmergeMe `shuf -i 1-100 -n 30 | tr "\n" " "`
 # 	./PmergeMe 82 89 68 11 39 2 36 29 69 99
 # 	./PmergeMe 99 8 66 21 86 33 10 7 5 43

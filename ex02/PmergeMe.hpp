@@ -6,7 +6,7 @@
 /*   By: akyoshid <akyoshid@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/12 23:43:11 by akyoshid          #+#    #+#             */
-/*   Updated: 2025/09/18 16:23:12 by akyoshid         ###   ########.fr       */
+/*   Updated: 2025/09/18 17:08:08 by akyoshid         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -68,6 +68,8 @@ class PmergeMe {
     void fixMainDeq(int destMainIndex, int srcPendIndex, int elementSize);
     void fixPendDeq(int destIndex, int srcPendIndex, int elementSize);
     void fixMainDeqAfterPendErase(int groupSize);
+    void displayBeforeDeq() const;
+    void displayAfterDeq() const;
     void displayMainDeq() const;
     void displayPendDeq() const;
     bool isSortedDeq() const;

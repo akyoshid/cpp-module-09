@@ -6,7 +6,7 @@
 /*   By: akyoshid <akyoshid@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/12 23:43:19 by akyoshid          #+#    #+#             */
-/*   Updated: 2025/09/18 16:26:36 by akyoshid         ###   ########.fr       */
+/*   Updated: 2025/09/18 16:48:44 by akyoshid         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -211,6 +211,7 @@ void PmergeMe::mergeInsertionSortVector(int depth) {
 void PmergeMe::initMainVec(int elementSize, int pairSize) {
     int vecSize = static_cast<int>(vec_.size());
     mainVec_.clear();
+    mainVec_.reserve(vecSize / elementSize);
     if (elementSize <= vecSize) {
         t_index_set tmp = {elementSize - 1, NO_PAIR_INDEX};
         mainVec_.push_back(tmp);
@@ -230,6 +231,7 @@ void PmergeMe::initMainVec(int elementSize, int pairSize) {
 void PmergeMe::initPendVec(int elementSize, int pairSize) {
     int vecSize = static_cast<int>(vec_.size());
     pendVec_.clear();
+    pendVec_.reserve(vecSize / pairSize);
     int pairMainIndex = 2;
     for (int i = pairSize + elementSize - 1; i < vecSize; i += pairSize) {
         if (i + elementSize < vecSize) {

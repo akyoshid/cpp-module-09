@@ -6,7 +6,7 @@
 /*   By: akyoshid <akyoshid@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/12 23:43:19 by akyoshid          #+#    #+#             */
-/*   Updated: 2025/09/17 18:50:28 by akyoshid         ###   ########.fr       */
+/*   Updated: 2025/09/18 13:58:06 by akyoshid         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,6 +32,11 @@ PmergeMe::PmergeMe(int argc, char **argv) : compCount_(0) {
     sortDeque();
     displayTimes();
     std::cout << compCount_ << std::endl;
+    if (!isSortedVec()) {
+        std::cout << "\033[31m" << "NOT SORTED" << "\033[0m" << std::endl;
+    } else {
+        std::cout << "\033[32m" << "SORTED" << "\033[0m" << std::endl;
+    }
 }
 
 PmergeMe::~PmergeMe() {
@@ -71,8 +76,8 @@ unsigned int PmergeMe::parseNumber(const std::string& num) {
         throw std::runtime_error("Error: too large number");
     } else if (*endptr != '\0') {
         throw std::runtime_error("Error: invalid character");
-    // } else if (ret == 0) {
-    //     throw std::runtime_error("Error: invalid integer 0");
+    } else if (ret == 0) {
+        throw std::runtime_error("Error: invalid integer 0");
     }
     return static_cast<unsigned int>(ret);
 }
@@ -111,6 +116,8 @@ void PmergeMe::mergeInsertionSortVector(int depth) {
         }
         ++compCount_;
     }
+    // std::cout << "🔥depth: " << depth << std::endl; //
+    // displayAfter(); //
     mergeInsertionSortVector(depth + 1);
     // if (depth >= 0) { //
     // std::cout << "🔥depth: " << depth << std::endl; //
@@ -131,10 +138,14 @@ void PmergeMe::mergeInsertionSortVector(int depth) {
         for (int groupIndex = groupSize - 1; groupIndex >= 0; --groupIndex) {
             int destMainIndex = getDestMainIndexVec(groupIndex);
             int destIndex;
-            if (mainVec_[destMainIndex].pairIndex_ == NO_PAIR_INDEX) {
-                destIndex = mainVec_[destMainIndex].index_ - elementSize + 1;
+            if (destMainIndex < static_cast<int>(mainVec_.size())) {
+                if (mainVec_[destMainIndex].pairIndex_ == NO_PAIR_INDEX) {
+                    destIndex = mainVec_[destMainIndex].index_ - elementSize + 1;
+                } else {
+                    destIndex = pendVec_[mainVec_[destMainIndex].pairIndex_].index_ - elementSize + 1;
+                }
             } else {
-                destIndex = pendVec_[mainVec_[destMainIndex].pairIndex_].index_ - elementSize + 1;
+                destIndex = pendVec_[pendVec_.size() - 1].index_ - elementSize + 1;
             }
             // std::cout << "srcPendIndex(groupIndex): " << groupIndex << std::endl; //
             // std::cout << "destMainIndex: " << destMainIndex << std::endl; //
@@ -144,13 +155,14 @@ void PmergeMe::mergeInsertionSortVector(int depth) {
             vec_.insert(vec_.begin() + destIndex, tmp.begin(), tmp.end());
             // displayAfter(); //
             fixMainVec(destMainIndex, groupIndex, elementSize);
-            fixPendVec(destMainIndex, groupIndex, elementSize);
+            fixPendVec(destIndex, groupIndex, elementSize);
             t_index_set tmpMain = {destIndex + elementSize - 1, NO_PAIR_INDEX};
             mainVec_.insert(mainVec_.begin() + destMainIndex, tmpMain);
             // displayMainVec(); //
             // displayPendVec(); //
         }
         pendVec_.erase(pendVec_.begin(), pendVec_.begin() + groupSize);
+        fixMainVecAfterPendErase(groupSize);
         ++customJacobsthalIndex;
     }
     // } //
@@ -219,45 +231,26 @@ int PmergeMe::getDestMainIndexVec(int srcPendIndex) {
     return startMainIndex;
 }
 
-// int PmergeMe::getDestMainIndexVec(int srcPendIndex) {
-//     int endMainIndex = pendVec_[srcPendIndex].pairIndex_ - 1;
-//     int value = vec_[pendVec_[srcPendIndex].index_];
-//     return binarySearchVec(value, 0, endMainIndex);
-// }
-
-// int PmergeMe::binarySearchVec(int value, int startMainIndex, int endMainIndex) {
-//     while (startMainIndex <= endMainIndex) {
-//         int midMainIndex = startMainIndex + (endMainIndex - startMainIndex) / 2;
-//         ++compCount_;
-//         if (value < vec_[mainVec_[midMainIndex].index_]) {
-//             endMainIndex = midMainIndex - 1;
-//         } else {
-//             startMainIndex = midMainIndex + 1;
-//         }
-//     }
-//     return startMainIndex;
-// }
-
 void PmergeMe::fixMainVec(int destMainIndex, int srcPendIndex, int elementSize) {
     int endMainIndex = pendVec_[srcPendIndex].pairIndex_;
     if (endMainIndex == NO_PAIR_INDEX) {
         endMainIndex = static_cast<int>(mainVec_.size());
     }
-    // std::cout << "endMainIndex: " << endMainIndex << std::endl; //
     for (int i = destMainIndex; i < endMainIndex; ++i) {
         mainVec_[i].index_ += elementSize;
     }
-    // if (pendVec_[srcPendIndex].pairIndex_ != NO_PAIR_INDEX)
-    //     mainVec_[pendVec_[srcPendIndex].pairIndex_].pairIndex_ = NO_PAIR_INDEX;
-}
-
-void PmergeMe::fixPendVec(int destMainIndex, int srcPendIndex, int elementSize) {
-    int beginPendIndex = mainVec_[destMainIndex].pairIndex_;
-    if (beginPendIndex == NO_PAIR_INDEX) {
-        beginPendIndex = 0;
-    }
     if (pendVec_[srcPendIndex].pairIndex_ != NO_PAIR_INDEX)
         mainVec_[pendVec_[srcPendIndex].pairIndex_].pairIndex_ = NO_PAIR_INDEX;
+}
+
+void PmergeMe::fixPendVec(int destIndex, int srcPendIndex, int elementSize) {
+    int beginPendIndex = static_cast<int>(pendVec_.size());
+    for (int i = 0; i < static_cast<int>(pendVec_.size()); ++i) {
+        if (pendVec_[i].index_ >= destIndex) {
+            beginPendIndex = i;
+            break;
+        }
+    }
     for (int i = beginPendIndex; i < static_cast<int>(pendVec_.size()); ++i) {
         if (i < srcPendIndex) {
             pendVec_[i].index_ += elementSize;
@@ -267,6 +260,13 @@ void PmergeMe::fixPendVec(int destMainIndex, int srcPendIndex, int elementSize) 
         }
     }
     pendVec_[srcPendIndex].pairIndex_ = NO_PAIR_INDEX;
+}
+
+void PmergeMe::fixMainVecAfterPendErase(int groupSize) {
+    for (int i = 0; i < static_cast<int>(mainVec_.size()); ++i) {
+        if (mainVec_[i].pairIndex_ != NO_PAIR_INDEX)
+            mainVec_[i].pairIndex_ -= groupSize;
+    }
 }
 
 void PmergeMe::swapElementVector(int i1, int i2, int elementSize) {
@@ -387,4 +387,13 @@ void PmergeMe::displayPendVec() const {
         }
     }
     std::cout << std::endl;
+}
+
+bool PmergeMe::isSortedVec() const {
+    for (size_t i = 1; i < vec_.size(); ++i) {
+        if (vec_[i - 1] > vec_[i]) {
+            return false;
+        }
+    }
+    return true;
 }
